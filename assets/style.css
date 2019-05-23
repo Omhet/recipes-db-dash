@@ -11,12 +11,19 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
+    /* align-items: center; */
+}
+
+#user-recipes-panel {
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
 .flex-wide {
     margin-top: 6rem;
     display: flex;
+    justify-content: center;
 }
 
 .flex-wide > * {
@@ -28,11 +35,13 @@ body {
 }
 
 #recipe-search {
-    margin-top: 4rem;
-    margin-bottom: 5rem;
+    margin-top: 8rem;
+    margin-bottom: 6rem;
+    width: 20%;
 }
 
-#recipes {
+#user-recipes {
+    /* margin-top: 8rem; */
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 5rem;
