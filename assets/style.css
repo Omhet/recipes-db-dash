@@ -2,6 +2,17 @@ img {
     width: 100%;
 }
 
+summary {
+    cursor: pointer;
+    outline: none;
+}
+
+details > div {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
 body {
     margin: 0 auto;
     max-width: 1200px;
@@ -12,6 +23,10 @@ body {
     display: flex;
     flex-direction: column;
     /* align-items: center; */
+}
+
+#_dash-app-content {
+    padding-bottom: 10rem;
 }
 
 #user-recipes-panel {

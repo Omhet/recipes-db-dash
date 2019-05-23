@@ -6,6 +6,13 @@ from dash.dependencies import Input, Output, State
 import requests
 import pymongo
 from pymongo import MongoClient
+import random
+import string
+
+def randomString(stringLength=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 client = MongoClient(
     'mongodb://admin:password@127.0.0.1:27017/admin')
@@ -16,17 +23,19 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+deleteButtons = []
 
 def serve_layout():
     return html.Div(className='flex', children=[
         html.Div(className='flex-wide', children=[
             html.Div(id='user-recipe-placeholder', className='recipe'),
-            html.Div(id='add-recipe-form', children=[
+            html.Form(id='add-recipe-form', children=[
                 html.Label('Название', htmlFor='recipe-title'),
                 dcc.Input(
-                        placeholder='Омлет',
-                        type='text',
-                        id='recipe-title'
+                    placeholder='Омлет',
+                    type='text',
+                    id='recipe-title',
+                    required=True
                 ),
                 html.Label('Ссылка на изображение',
                            htmlFor='recipe-image'),
@@ -43,38 +52,45 @@ def serve_layout():
                     max='20',
                     type='number',
                     value='',
-                    id='recipe-portions'
+                    id='recipe-portions',
+                        required=True
                 ),
                 html.Label('Время приготовления (в минутах)',
                            htmlFor='recipe-time'),
                 dcc.Input(
                     placeholder='30',
                     type='number',
+                    min='1',
+                    max='1000',
                     value='',
-                    id='recipe-time'
+                    id='recipe-time',
+                    required=True
                 ),
                 html.Label('Ингредиенты',
                            htmlFor='recipe-ingredients'),
                 dcc.Textarea(
                     placeholder='Яйца - 4 штуки\nМолоко - 1 литр',
                     value='',
-                    id='recipe-ingredients'
+                    id='recipe-ingredients',
+                    required=True
                 ),
                 html.Label('Рецепт',
                            htmlFor='recipe-steps'),
                 dcc.Textarea(
                     placeholder='1. Разбить яйца\n2. Налить молоко\n3. Жарить',
                     value='',
-                    id='recipe-steps'
+                    id='recipe-steps',
+                    required=True
                 ),
-                html.Button('Добавить', id='add-button')
+                html.Button('Добавить', id='add-button', type='submit')
             ])
         ]),
         html.Div(id='user-recipes-panel', children=[
             dcc.Input(id='recipe-search', placeholder='Найти блюдо',
                       type='text', value=''),
             html.Div(id='user-recipes-container', children=[
-            ])
+            ]),
+            html.Div(id='test-container')
         ])
     ])
 
@@ -128,14 +144,21 @@ def getPortions(val, default):
             return str(val) + ' порций'
 
 
+def getLines(val):
+    if val is None or val == '':
+        return []
+    else:
+        return val.split('\n')
+
+
 def getRecipeToAdd(title, image, portions, time, ingredients, steps):
     title = getValue(title, 'Название блюда')
     image = getValue(
         image, 'https://s2.eda.ru/StaticContent/DefaultRecipePhoto/no-photo.svg')
     portions = getPortions(portions, '0 порций')
     time = getTime(time, '0 минут')
-    ingredients = getValue(ingredients, '')
-    steps = getValue(steps, '')
+    ingredients = getLines(ingredients)
+    steps = getLines(steps)
 
     return {'title': title, 'image': image, 'portions': portions, 'time': time,
             'ingredients': ingredients, 'steps': steps, 'ingredientsAmount': ''}
@@ -143,16 +166,16 @@ def getRecipeToAdd(title, image, portions, time, ingredients, steps):
 
 @app.callback(Output('user-recipes-container', 'children'), [
     Input('add-button', 'n_clicks')], [State('recipe-title', 'value'),
-                                                             State(
-    'recipe-image', 'value'),
+                                       State(
+        'recipe-image', 'value'),
     State(
-    'recipe-portions', 'value'),
+        'recipe-portions', 'value'),
     State(
-    'recipe-time', 'value'),
+        'recipe-time', 'value'),
     State(
-    'recipe-ingredients', 'value'),
+        'recipe-ingredients', 'value'),
     State(
-    'recipe-steps', 'value')])
+        'recipe-steps', 'value')])
 def userRecipes(n_clicks, title, image, portions, time, ingredients, steps):
     recipe_to_add = getRecipeToAdd(
         title, image, portions, time, ingredients, steps)
@@ -175,12 +198,25 @@ def recipe(val):
             html.P(className='recipe-meta',
                    children=val['portions'] + '  ' + time),
             html.Details([
-                html.Summary(val['ingredientsAmount']),
-                html.P('Content2')
+                html.Summary(
+                    str(len(val['ingredients'])) + ' ингредиента(ов)'),
+                html.Div(children=[
+                    html.P(ingredientLine) for ingredientLine in val['ingredients']
+                ])
+            ]),
+            html.Details([
+                html.Summary(str(len(val['steps'])) + ' шаг(ов)'),
+                html.Div(children=[
+                    html.P(stepLine) for stepLine in val['steps']
+                ])
             ])
-        ])
+        ]),
+        html.Button('Delete', id=randomString() )
     ])
 
 
+@app.callback(Output('test-container', 'children'), deleteButtons)
+def deleteRecipe(*args):
+    return 'text'
 if __name__ == '__main__':
     app.run_server(debug=True)
