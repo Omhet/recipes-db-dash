@@ -26,10 +26,6 @@ body {
     justify-content: center;
 }
 
-.flex-wide > * {
-    /* flex: 1; */
-}
-
 #tabs-parent {
     width: 100%;
 }
@@ -39,9 +35,11 @@ body {
     margin-bottom: 6rem;
     width: 20%;
 }
+#user-recipes-container {
+    width: 100%;
+}
 
 #user-recipes {
-    /* margin-top: 8rem; */
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 5rem;
