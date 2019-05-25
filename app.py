@@ -157,9 +157,7 @@ def getRecipeToAdd(title, image, portions, time, ingredients, steps):
 
     return {'title': title, 'image': image, 'portions': portions, 'time': time,
             'ingredients': ingredients, 'steps': steps, 'ingredientsAmount': ''}
-# db.restaurant.updateOne(
-#       { "name" : "Central Perk Cafe" },
-#       { $set: { "violations" : 3 } }
+
 
 @app.callback(Output('user-recipes-container', 'children'), [
     Input('add-button', 'n_clicks')], [State('recipe-title', 'value'),
