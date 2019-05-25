@@ -16,13 +16,13 @@ details > div {
 body {
     margin: 0 auto;
     max-width: 1200px;
+    overflow: scroll;
 }
 
 .flex {
     margin: 0;
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
 }
 
 #_dash-app-content {

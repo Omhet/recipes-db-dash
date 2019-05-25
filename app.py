@@ -9,14 +9,9 @@ from pymongo import MongoClient
 import random
 import string
 
-def randomString(stringLength=10):
-    """Generate a random string of fixed length """
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
-
 client = MongoClient(
-    'mongodb://admin:password@127.0.0.1:27017/admin')
-db = client['admin']
+    'mongodb://omhet:omhetdev16@ds227035.mlab.com:27035/omhet_db')
+db = client['omhet_db']
 recipesCol = db.recipes
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -162,7 +157,9 @@ def getRecipeToAdd(title, image, portions, time, ingredients, steps):
 
     return {'title': title, 'image': image, 'portions': portions, 'time': time,
             'ingredients': ingredients, 'steps': steps, 'ingredientsAmount': ''}
-
+# db.restaurant.updateOne(
+#       { "name" : "Central Perk Cafe" },
+#       { $set: { "violations" : 3 } }
 
 @app.callback(Output('user-recipes-container', 'children'), [
     Input('add-button', 'n_clicks')], [State('recipe-title', 'value'),
@@ -181,7 +178,11 @@ def userRecipes(n_clicks, title, image, portions, time, ingredients, steps):
         title, image, portions, time, ingredients, steps)
 
     if n_clicks is not None:
-        recipesCol.insert_one(recipe_to_add)
+        found_doc = recipesCol.find_one({ 'title': title })
+        if found_doc is None:
+            recipesCol.insert_one(recipe_to_add)
+        else:
+            recipesCol.update_one({ 'title': title }, { '$set': recipe_to_add })
 
     return html.Div(id='user-recipes', children=[recipe(val) for val in recipesCol.find()])
 
@@ -210,13 +211,9 @@ def recipe(val):
                     html.P(stepLine) for stepLine in val['steps']
                 ])
             ])
-        ]),
-        html.Button('Delete', id=randomString() )
+        ])
     ])
 
 
-@app.callback(Output('test-container', 'children'), deleteButtons)
-def deleteRecipe(*args):
-    return 'text'
 if __name__ == '__main__':
     app.run_server(debug=True)
